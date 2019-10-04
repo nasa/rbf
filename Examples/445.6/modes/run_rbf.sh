@@ -18,6 +18,7 @@ export rbf=rbf
 #for large FEM try using -nk option with 500 to 2000 instead of -pk 
 export pk=100
 
+
 function run() {
   modenum=$(echo $1 |sed 's/[^0-9]//g')
   modenumfun=$(echo $modenum | sed 's/^0*//') #remove leading zeros for fun3d
@@ -29,6 +30,10 @@ function run() {
 export -f run
 
 ####################################################################
+
+if [ ! -e fem ]; then
+  ln -s ../fem .
+fi
 
 parallel_exe=$(which parallel 2>/dev/null)
 if [ -z $parallel_exe ]; then
