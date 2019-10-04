@@ -1,0 +1,16 @@
+FC = gfortran
+LD = gfortran
+CPPFLAGS = -DHAVE_OMP
+FFLAGS = -O2 -Wall -finit-real=nan -fopenmp  -g
+LDFLAGS = -L/usr/local/opt/lapack/lib -L/usr/local/opt/openblas/lib \$(LIBS) -fopenmp 
+LIBS = -lblas -llapack
+
+all: rbf
+
+buildinfo.f90:
+	echo "module buildinfo"                               > buildinfo.f90
+	date | sed 's/^/  character(len=80), parameter :: build_time = \"/; s/$$/\"/'     >> buildinfo.f90
+	uname -sr | sed 's/^/  character(len=80), parameter :: build_os   = \"/; s/$$/\"/' >> buildinfo.f90
+	basename -- "$$PWD" | sed 's/^/  character(len=80), parameter :: build_dir  = \"/; s/$$/\"/' \
+	>> buildinfo.f90
+	echo "end module buildinfo"                           >> buildinfo.f90

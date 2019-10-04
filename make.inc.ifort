@@ -1,0 +1,17 @@
+FC = ifort
+LD = ifort
+CPPFLAGS = 
+MKLPATH=$(MKLROOT)/lib/intel64
+MKLINCLUDE=$(MKLROOT)/include
+FFLAGS = -w -nbs -ftz -g -traceback -ipo -03 -axCORE-AVX512 -xSSE4.2 -align 
+LDFLAGS = -nbs -L$(MKLPATH) -I$(MKLINCLUDE) -mkl=sequential
+
+all: rbf
+
+buildinfo.f90:
+	echo "module buildinfo"                               > buildinfo.f90
+	date | sed 's/^/  character(len=80), parameter :: build_time = \"/; s/$$/\"/'     >> buildinfo.f90
+	uname -sr | sed 's/^/  character(len=80), parameter :: build_os   = \"/; s/$$/\"/' >> buildinfo.f90
+	basename -- "$$PWD" | sed 's/^/  character(len=80), parameter :: build_dir  = \"/; s/$$/\"/' \
+	>> buildinfo.f90
+	echo "end module buildinfo"                           >> buildinfo.f90

@@ -1,0 +1,4 @@
+To compile link make.inc to the appropriate file for your compiler.
+Be sure correct modules are loaded. Example helper scripts 
+(make_k.sh make_pfe.sh) do this for the k and pleiades clusters.
+
