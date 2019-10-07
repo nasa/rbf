@@ -41,13 +41,13 @@ contains
     write(*,'(t12,a,t16,a)') '-z', 'zsym_blend_distance_in_grid_units' 
     write(*,'(t12,a,t16,a)') '-cs', 'compute spring connectivity from rbf.nml'
     write(*,'(a)') 'Requires:  '
-    write(*,'(a)') '          1) tecplot formatted fem mode shapes with '
-    write(*,'(a)') '             variables x,y,z,id,f1,f2,f3,f4,f5,f6'
+    write(*,'(a)') '          1) ascci formatted fem mode shapes with '
+    write(*,'(a)') '             variables x,y,z,f1,f2,f3,f4,f5,f6'
     write(*,'(a)') 'Examples:  '
-    write(*,'(a)') '           '//trim(exe)//' -s fem/mode001.plt -d '//       &
+    write(*,'(a)') '           '//trim(exe)//' -s fem/mode001.txt -d '//       &
       'project_ddfdrive_body1.dat \'
     write(*,'(t14,a)') '-i project_body1_mode1.dat -nk 250 -y 4'
-    write(*,'(a)') '           '//trim(exe)//' -s fem/mode001.dat -d '//       &
+    write(*,'(a)') '           '//trim(exe)//' -s fem/mode001.txt -d '//       &
       'ddfdrive_allsurf.dat \'
     write(*,'(t14,a)') '-i project_body1_mode1.dat -p ddfdrive_wing_tail.dat'//&
       ' -b 3 -pk 25'
