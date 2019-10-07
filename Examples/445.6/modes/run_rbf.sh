@@ -37,7 +37,7 @@ fi
 
 parallel_exe=$(which parallel 2>/dev/null)
 if [ -z $parallel_exe ]; then
-  echo 'Recommend installing gnu parallel.'
+  echo '***********  Recommend installing gnu parallel. ************'
   for f in fem/mode*.txt
   do
     run $f
@@ -46,4 +46,5 @@ else
   ls fem/mode*.txt | SHELL=/bin/bash parallel run
 fi
 
-./fem-rbf.sh
+# to plot
+#./fem-rbf.sh

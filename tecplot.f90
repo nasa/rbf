@@ -259,7 +259,6 @@ end subroutine get_data_format
     integer(i4)    :: not_used ! = -1 
     integer(i4)    :: zone_type
     integer(i4), dimension(:), allocatable    :: data_packing
-    integer(i4)   :: specify_variable_locations
     integer(i4), dimension(:), allocatable    :: variable_locations
     integer(i4)    :: raw_local
     integer(i4)    :: number_misc ! should be 0

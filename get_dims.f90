@@ -17,7 +17,7 @@ contains
     implicit none
 
     integer :: funit, n_data, iostatus
-    character(len=2048) :: line, word
+    character(len=2048) :: line
    
     continue
 
@@ -39,8 +39,8 @@ contains
  
     implicit none
 
-    integer :: funit, n_data,ic,nelem_data,iostatus
-    character(len=2048) :: line,word
+    integer :: funit, n_data,nelem_data,iostatus
+    character(len=2048) :: line
  
     continue   
   

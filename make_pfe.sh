@@ -9,3 +9,4 @@ rm -f make.inc
 ln -s make.inc.$exe_type make.inc
 make clean
 make 
+rm make.inc

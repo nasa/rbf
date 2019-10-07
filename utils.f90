@@ -135,6 +135,7 @@ contains
     character(len=256)  :: line
     nlines = 0
     rewind(funit)
+    iostatus=0
     do while (iostatus==0)
       read(funit,'(a)',iostat=iostatus) line
       if ((len_trim(line)).gt.0.and.(iostatus==0)) then

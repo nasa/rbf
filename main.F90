@@ -452,7 +452,7 @@ program main
   integer :: sym_flag
   integer :: tid, nthreads
   integer :: i, j, k, m, n, p, pq
-  integer :: n_interp, n_data, nelem_interp, n_prune, n_primary, n_nodes
+  integer :: n_interp, n_data, nelem_interp, n_prune, n_primary
   integer :: nelem_primary, n_target
   integer :: percent_keep
   integer :: clock1, clock2, clock3, clock4, clock_rate
@@ -461,7 +461,6 @@ program main
 
   real (dp) :: zero_tol_double
   real (dp) :: zero_tol_single
-  real (dp) :: scale_factor
   real (dp) :: xmin(dim_space), xmax(dim_space), time, l_max
   real (dp) :: fmin(dim_space), fmax(dim_space), min_distance
   real (dp) :: l_keep_squared, dist_min, dist, pi
