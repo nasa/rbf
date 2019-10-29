@@ -1,7 +1,7 @@
 # rbf
 Mode shape interpolation via radial basis functions
 
-See Examples/hirenasd for scripts showing all steps required to prepare FEM modes for use in FUN3D. The scripts will have to be adjusted for your PBS envirnoment. Also make that fun3d and tecplot are in your path. 
+See Examples/hirenasd for scripts showing all steps required to prepare FEM modes for use in FUN3D. The scripts will have to be adjusted for your PBS envirnoment. Also make sure that fun3d and tecplot are in your path. 
 
 The following help is shown by typing ./rbf without any arguments.
 <pre>
