@@ -794,7 +794,8 @@ program main
 ! write interpolated result
   format0 = "('zone t=', a, ', i=', i0, ', j=', i0, ', f=fepoint')"
   !format2 = '(2x, 3(e23.15e3, 1x), i10, 1x, 10(e23.15e3, 1x))'
-  format2 = '(2x, 3(e17.9e3, 1x), i10, 1x, 10(e17.9e3, 1x))'
+  !format2 = '(2x, 3(e17.9e3, 1x), i10, 1x, 10(e17.9e3, 1x))'
+  format2 = '(2x, 3(e23.15e3, 1x), i10, 1x, 10(e17.9e3, 1x))'
   write(unit_interp, '(a)') 'TITLE = "mode shapes via rbf"'
   write(unit_interp, '(a)') 'VARIABLES = "X" "Y" "Z" "Id" "f1" "f2" "f3"'
   write(unit_interp, format0) '"ID#1"', n_interp, nelem_interp
