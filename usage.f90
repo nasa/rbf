@@ -32,6 +32,7 @@ contains
     write(*,'(t12,a,t16,a)') '-iz', 'ignore points whose values are zero'
     write(*,'(t12,a,t16,a)') '-nk', 'number of source (fem) nodes to keep'
     write(*,'(t12,a,t16,a)') '-pk', 'percent of source (fem) nodes to keep'
+    write(*,'(t12,a,t16,a)') '-lk', 'keep source (fem) nodes based on length'
     write(*,'(t12,a,t16,a)') '-wp', 'write fem_source_points for debugging' 
     write(*,'(t12,a,t16,a)') '-p', 'primary_surface_file' 
     write(*,'(t12,a,t16,a)') '-b', 'radial_blend_distance_in_grid_units '//    &

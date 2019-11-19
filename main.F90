@@ -130,7 +130,7 @@ program main
   use get_dims,       only : get_dims_data_point, get_dims_data_elem,          &
                              get_dims_interp
   use kinddefs,       only : dp, r8, i4
-  use utils,          only : read_to_word, onlist, nlines
+  use utils,          only : read_to_word, onlist, nlines, quicksort
   use rbf,            only : get_rbf_weights, get_rbf_interp
   use buildinfo,      only : build_time, build_dir
   use tec_types,      only : tec_node_data_type,                               &
@@ -158,7 +158,7 @@ program main
     type(kdtree2), pointer :: p 
   end type kdtree2_pointer
 
-  integer,   parameter, dimension(3) :: ver = [2, 3, 0]
+  integer,   parameter, dimension(3) :: ver = [2, 4, 0]
   integer,   parameter :: dim_space = 3
   integer,   parameter :: dim_data  = 3
   integer,   parameter :: dim_elem  = 4
@@ -166,6 +166,7 @@ program main
   integer,   parameter :: unit_primary = 4, unit_prune = 7
   integer,   parameter :: nresults = 8, n_target_default = 1000
   real (dp), parameter :: l_factor = 0.05 ! to estimate characteristic length
+  integer,   parameter :: max_prune_iterations = 100 ! should never come close to this
 !
 ! r0 should be larger than the typical separation of points but smaller than 
 ! the "outer scale" or feature size of the function that you are interpolating.
@@ -183,7 +184,6 @@ program main
   logical               :: fexist
   character(len=3)      :: source_format ! fem mode format .plt .dat or .txt
 
-  integer :: omp_get_num_threads, omp_get_thread_num
   integer :: sym_flag
   integer :: tid, nthreads
   integer :: i, j, k, m, n, p, pq
@@ -220,6 +220,7 @@ program main
   real (dp), allocatable, dimension(:,:) :: x_data
   real (dp), allocatable, dimension(:,:) :: fall_data
   real (dp), allocatable, dimension(:)   :: f_data
+  real (dp), allocatable, dimension(:)   :: distances 
 
   real (dp), allocatable, dimension(:,:) :: x_prune
   real (dp), allocatable, dimension(:,:) :: fall_prune
@@ -432,16 +433,6 @@ program main
     stop
   endif 
 
-#ifdef HAVE_OMP
-!$omp parallel private(nthreads, tid)
-  tid = omp_get_thread_num()
-  if (tid == 0) then
-    nthreads = omp_get_num_threads()
-   write(*,'(a,i3)') 'OMP Threads = ', nthreads
-  end if
-!$omp end parallel
-#endif
-
   if (source_format=='plt') then
     call open_tec_file(unit_source, filename_source)
   else 
@@ -474,6 +465,7 @@ program main
   write(*, *) 'n_data = ',n_data
 
   allocate (   x_data(dim_space, n_data),  f_data(n_data))
+  allocate (distances(n_data))
   allocate (fall_data( dim_data, n_data), id_data(n_data))
 
   if (ignore_zero) then
@@ -600,11 +592,6 @@ program main
     n_prune = 1
     x_prune(:, n_prune)    = x_data(:, 1)
     fall_prune(:, n_prune) = fall_data(:, 1)
-    !$omp parallel default(none) &
-    !$omp& shared(n_prune, x_data, x_prune, n_data, l_keep_squared) &
-    !$omp& shared(fall_data, fall_prune) &
-    !$omp& private(i, j, dist, dist_min)
-    !$omp do
     do i = 2, n_data
       dist_min = huge(0.d0)
       do j = 1, n_prune
@@ -614,15 +601,11 @@ program main
         end if
       end do
       if (dist_min > l_keep_squared) then
-      !$omp critical
         n_prune = n_prune + 1
         x_prune(:, n_prune) = x_data(:, i)
         fall_prune(:, n_prune) = fall_data(:, i)
-      !$omp end critical
       end if
     end do
-    !$omp end do
-    !$omp end parallel
     write(*,*) 'n_prune = ',n_prune
   else
     if (percent_keep /= 0) then ! use percent if specified
@@ -632,67 +615,85 @@ program main
       n_target = min(n_target_default, n_data)
     endif
     write(*,*) 'n_target = ',n_target
-
-  ! determine maximum length scale (l_max)
-    do m = 1, dim_space
-      xmin(m) = minval( x_data(m,:) )
-      xmax(m) = maxval( x_data(m,:) )
-    end do
-    l_max = maxval( xmax(:)-xmin(:) )
-   
-    l_keep_squared = (l_max*l_factor)**2
-    k = 0
-    reduction_factor=1.0
-    n_prune = 0 
-    write(*,*) 'l_max, l_keep_squared=',l_max,l_keep_squared
-    do while (n_prune < n_target )  
-      k = k + 1
-  ! keep first point
-      n_prune = 1
-      x_prune(:, n_prune)    = x_data(:, 1)
-      fall_prune(:, n_prune) = fall_data(:, 1)
-      !$omp parallel default(none) &
-      !$omp& shared(n_prune, x_data, x_prune, n_data, l_keep_squared) &
-      !$omp& shared(fall_data, fall_prune) &
-      !$omp& private(i, j, dist, dist_min)
-      !$omp do
-      do i = 2, n_data
+    if (n_target == n_data) then  ! 100% 
+      call system_clock(clock3, clock_rate)
+      do i = 1, n_data
         dist_min = huge(0.d0)
-        do j = 1, n_prune
-          dist = sum( (x_data(:, i)-x_prune(:,j))**2)
-          if (dist < dist_min) then
-            dist_min = dist 
+        do j = 1, n_data
+          if ( i /= j ) then
+            dist = sum( (x_data(:, i)-x_data(:,j))**2)
+            if (dist < dist_min) then
+              dist_min = dist 
+            end if
           end if
         end do
-        if (dist_min > l_keep_squared) then
-        !$omp critical
-          n_prune = n_prune + 1
-          x_prune(:, n_prune) = x_data(:, i)
-          fall_prune(:, n_prune) = fall_data(:, i)
-        !$omp end critical
-        end if
+        distances(i) = dist_min
       end do
-      !$omp end do
-      !$omp end parallel
-      if (float(n_prune)/float(n_target) < .25 ) then
-        reduction_factor = .25
-      else if (float(n_prune)/float(n_target) < .5 ) then
-        reduction_factor = .5
-      else if (float(n_prune)/float(n_target) < .75 ) then
-        reduction_factor = .75
-      else if (float(n_prune)/float(n_target) < .99 ) then
-        reduction_factor = .98
-      end if 
-      l_keep_squared = l_keep_squared*reduction_factor
-      !write(*,*) n_prune, n_target, l_keep_squared
-    end do
-    call system_clock(clock2, clock_rate)
-    time = dble(clock2-clock1) / clock_rate
-    write(*, '("prune:", f8.2, " sec")') time
+      call quicksort(distances,1,n_data)
+      l_keep_squared=distances(n_data/2) !median distance **2
+      call system_clock(clock4, clock_rate)
+      time = dble(clock4-clock3) / clock_rate
+      write(*, '("compute r0:", f8.2, " sec")') time
+      n_prune = n_data
+      x_prune = x_data
+      fall_prune = fall_data
+    else
+    ! determine maximum length scale (l_max)
+      do m = 1, dim_space
+        xmin(m) = minval( x_data(m,:) )
+        xmax(m) = maxval( x_data(m,:) )
+      end do
+      l_max = maxval( xmax(:)-xmin(:) )
+     
+      l_keep_squared = (l_max*l_factor)**2
+      k = 0
+      reduction_factor=1.0
+      n_prune = 0 
+      write(*,*) 'l_max, l_keep_squared=',l_max,l_keep_squared
+      do while (n_prune < n_target )
+        k = k + 1
+        if ( k >  max_prune_iterations ) then
+          write(*,*) 'exceeded max_prune_iterations = ', max_prune_iterations
+          exit 
+        end if 
+    ! keep first point
+        n_prune = 1
+        x_prune(:, n_prune)    = x_data(:, 1)
+        fall_prune(:, n_prune) = fall_data(:, 1)
+        do i = 2, n_data
+          dist_min = huge(0.d0)
+          do j = 1, n_prune
+            dist = sum( (x_data(:, i)-x_prune(:,j))**2)
+            if (dist < dist_min) then
+              dist_min = dist 
+            end if
+          end do
+          if (dist_min > l_keep_squared) then
+            n_prune = n_prune + 1
+            x_prune(:, n_prune) = x_data(:, i)
+            fall_prune(:, n_prune) = fall_data(:, i)
+          end if
+        end do
+        if (float(n_prune)/float(n_target) < .25 ) then
+          reduction_factor = .25
+        else if (float(n_prune)/float(n_target) < .5 ) then
+          reduction_factor = .5
+        else if (float(n_prune)/float(n_target) < .75 ) then
+          reduction_factor = .75
+        else if (float(n_prune)/float(n_target) < .99 ) then
+          reduction_factor = .98
+        end if 
+        l_keep_squared = l_keep_squared*reduction_factor
+        !write(*,*) n_prune, n_target, l_keep_squared
+      end do
+      call system_clock(clock2, clock_rate)
+      time = dble(clock2-clock1) / clock_rate
+      write(*, '("prune:", f8.2, " sec")') time
 
-    write(*, '(i3, a, i6, a)') nint(100*float(n_prune)/float(n_data)),         &
-     '% source points kept. (', n_prune, ' points)' 
-
+      write(*, '(i3, a, i6, a)') nint(100*float(n_prune)/float(n_data)),         &
+       '% source points kept. (', n_prune, ' points)' 
+      write(*,*) 'prune iterations = ',k
+    end if
   end if
   r0 = sqrt(l_keep_squared)
   write(*,*) 'r0 = ',r0

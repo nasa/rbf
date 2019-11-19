@@ -4,7 +4,7 @@ module utils
 
   private
 
-  public :: nwords, nthword, read_to_word, distsq, onlist, nlines
+  public :: nwords, nthword, read_to_word, distsq, onlist, nlines, quicksort
 
 contains
 
@@ -144,5 +144,40 @@ contains
     end do
     return
   end function nlines
+
+
+  recursive subroutine quicksort(a, lo, hi)
+
+    use kinddefs,       only : dp
+
+    implicit none
+
+    real (dp) :: a(*), pivot, tmp
+    integer   :: lo, hi
+    integer   :: i, j
+
+    pivot = a( ( lo + hi ) / 2 )
+    i = lo
+    j = hi
+
+    do
+      do while ( a(i) < pivot )
+        i = i + 1
+      end do
+      do while ( pivot < a(j) )
+        j = j - 1
+      end do
+      if ( i >= j ) exit
+        tmp = a(i)
+        a(i) = a(j)
+        a(j) = tmp
+        i = i + 1
+        j = j - 1
+    end do
+
+    if (lo < i - 1) call quicksort(a, lo, i - 1)
+    if ( j + 1 < hi) call quicksort(a, j + 1, hi)
+
+  end subroutine quicksort
 
 end module utils

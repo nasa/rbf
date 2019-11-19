@@ -30,7 +30,7 @@ svd.o: ./svd.f90 kinddefs.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./svd.f90
 tec_types.o: ./tec_types.f90 kinddefs.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./tec_types.f90
-tecplot.o: ./tecplot.f90 kinddefs.o file_utils.o tec_types.o
+tecplot.o: ./tecplot.f90 kinddefs.o tec_types.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./tecplot.f90
 usage.o: ./usage.f90 buildinfo.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./usage.f90
