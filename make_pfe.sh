@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Get module function defined
+ENV=/usr/local/lib/global.kshrc; export ENV 
+. $ENV          
 module purge
 #module load comp-intel/2018.0.128 this module doesn't work with tecplot
 module load comp-intel/2018.3.222
