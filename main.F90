@@ -395,7 +395,6 @@ program main
         end do
         close(p)
       end do
-!xxxx
 ! write spring segments for debugging
       do p = 1, number_of_spring_patches
         write(filename_connect,'(a,i0,a)') 'spring_segment_patch_',p,'.dat'
@@ -557,14 +556,20 @@ program main
   do m = 1, dim_space
     fmin(m) = minval( fall_data(m,:) )
     fmax(m) = maxval( fall_data(m,:) )
+    write(*,*) m,fmin(m),fmax(m)
   end do
   
-!  do m = 1, dim_space
-!    if (abs(fmax(m)-fmin(m)) <= zero_tol_double ) then
-!      skipxyz(m) = .true.
-!    end if
-!  end do
-  skipxyz(:) = (abs(fmax(:)-fmin(:)) <= zero_tol_double )
+  !skipxyz(:) = .false.
+  !do m = 1, dim_space
+  !  if (abs(fmax(m)-fmin(m)) <= zero_tol_double ) then
+  !    skipxyz(m) = .true.
+  !    write(*,*) 'skipxyz(',m,')=',skipxyz(m)
+  !  end if
+  !end do
+
+  !skipxyz(:) = (abs(fmax(:)-fmin(:)) <= zero_tol_double )
+  skipxyz(:) = (abs(fmax(:)-fmin(:)) <= zero_tol_single )
+  !write(*,*) 'skipxyz(:)=',skipxyz(:)
 
 !read destination
   call get_dims_interp(unit_dest, n_interp, nelem_interp)
@@ -712,8 +717,10 @@ program main
 ! interpolate for each column of data
   do j = 1, dim_data
     if ( skipxyz(j) ) then
-      write(*, *) 'Skipping zeroed mode shape component', j
-      fall_interp(j, :) = 0.d0
+      !write(*, *) 'Skipping zeroed mode shape component', j
+      write(*, *) 'Skipping interpolation of constant mode shape component',  &
+                  j, 'f =',fall_data(j,1)
+      fall_interp(j, :) =  fall_data(j,1) ! index 1 is arbitrary since constant
     else
       write(*, *) 'interpolating component:', j
       f_prune(:) = fall_prune(j, :) 
