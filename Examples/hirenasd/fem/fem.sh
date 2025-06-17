@@ -3,7 +3,7 @@ set -e
 setopt verbose
 
 if [ ! -e hirenasd_aepw_fem_nov2011.op2 ]; then
-  wget https://aeroelasticity.larc.nasa.gov/files/2019/10/hirenasd_aepw_fem_nov2011.zip
+  wget https://aeroelasticity.larc.nasa.gov/wp-content/uploads/sites/8/2019/10/hirenasd_aepw_fem_nov2011.zip
   unzip hirenasd_aepw_fem_nov2011.zip
   if [ -e hirenasd_aepw_fem_nov2011.op2 ]; then
     rm hirenasd_aepw_fem_nov2011.zip
