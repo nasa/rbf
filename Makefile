@@ -22,8 +22,8 @@ options.o: ./options.f90 kinddefs.o usage.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./options.f90
 phi.o: ./phi.f90 kinddefs.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./phi.f90
-rbf.o: ./rbf.f90 kinddefs.o phi.o svd.o
-	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./rbf.f90
+rbf.o: ./rbf.F90 kinddefs.o phi.o svd.o
+	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./rbf.F90
 string_utils.o: ./string_utils.f90 kinddefs.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./string_utils.f90
 svd.o: ./svd.f90 kinddefs.o
@@ -36,7 +36,7 @@ usage.o: ./usage.f90 buildinfo.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./usage.f90
 utils.o: ./utils.f90 kinddefs.o
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./utils.f90
-SRC = ./get_dims.f90 ./kdtree2.f90 ./utils.f90 ./phi.f90 ./main.F90 ./usage.f90 ./kinddefs.f90 ./tecplot.f90 ./options.f90 ./tec_types.f90 ./string_utils.f90 ./buildinfo.f90 ./svd.f90 ./rbf.f90
+SRC = ./get_dims.f90 ./kdtree2.f90 ./utils.f90 ./phi.f90 ./main.F90 ./usage.f90 ./kinddefs.f90 ./tecplot.f90 ./options.f90 ./tec_types.f90 ./string_utils.f90 ./buildinfo.f90 ./svd.f90 ./rbf.F90
 OBJ = get_dims.o kdtree2.o utils.o phi.o main.o usage.o kinddefs.o tecplot.o options.o  tec_types.o string_utils.o buildinfo.o svd.o rbf.o
 clean: neat
 	-rm -f .rbf.cppdefs $(OBJ) *.mod buildinfo.f90 rbf modules.log

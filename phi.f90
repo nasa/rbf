@@ -57,16 +57,19 @@ contains
 ! Thin plate spline radial basis function.
 !-----------------------------------------------------------------------------80
   subroutine phi_tps ( n, r, r0, v )
-
-    use kinddefs, only : dp 
-
-    integer,                intent(in)  :: n
-    real(dp), dimension(n), intent(in)  :: r
-    real(dp),               intent(in)  :: r0
-    real(dp), dimension(n), intent(out) :: v
-
-    v(:) = merge(r(:)**2 * log ( r(:) / r0 ), 0.d0, r(:) > 0.d0)
-
+      use kinddefs, only : dp
+      integer,                intent(in)  :: n
+      real(dp), dimension(n), intent(in)  :: r
+      real(dp),               intent(in)  :: r0
+      real(dp), dimension(n), intent(out) :: v
+      integer :: i
+      do i = 1, n
+          if (r(i) == 0.0_dp) then
+              v(i) = 0.0_dp
+          else
+              v(i) = r(i)**2 * log( r(i) / r0 )
+          end if
+      end do
   end subroutine phi_tps
 
 !------------------------------------ PHI_G ----------------------------------80

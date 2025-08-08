@@ -131,7 +131,8 @@ program main
                              get_dims_interp
   use kinddefs,       only : dp, r8, i4
   use utils,          only : read_to_word, onlist, nlines, quicksort
-  use rbf,            only : get_rbf_weights, get_rbf_interp
+  use rbf,            only : get_rbf_weights, get_rbf_interp, build_rbf_matrix,&
+                             solve_rbf_lu 
   use buildinfo,      only : build_time, build_dir
   use tec_types,      only : tec_node_data_type,                               &
                              tec_quad_connectivity_type
@@ -158,7 +159,7 @@ program main
     type(kdtree2), pointer :: p 
   end type kdtree2_pointer
 
-  integer,   parameter, dimension(3) :: ver = [2, 4, 0]
+  integer,   parameter, dimension(3) :: ver = [2, 5, 0]
   integer,   parameter :: dim_space = 3
   integer,   parameter :: dim_data  = 3
   integer,   parameter :: dim_elem  = 4
@@ -224,6 +225,7 @@ program main
 
   real (dp), allocatable, dimension(:,:) :: x_prune
   real (dp), allocatable, dimension(:,:) :: fall_prune
+  real (dp), allocatable, dimension(:,:) :: rbf_matrix
   real (dp), allocatable, dimension(:)   :: f_prune
 
   real (dp), allocatable :: weights(:)
@@ -715,6 +717,14 @@ program main
   end if
 
 ! interpolate for each column of data
+#ifdef BUILD_RBF_MATRIX
+  allocate (rbf_matrix(n_prune,n_prune))
+  call system_clock(clock1, clock_rate)
+  call build_rbf_matrix(dim_space, n_prune, x_prune, r0, rbf_matrix)
+  call system_clock(clock2, clock_rate)
+  time = dble(clock2-clock1) / clock_rate
+  write(*, *) 'build_rbf_matrix: ', time, ' sec'
+#endif
   do j = 1, dim_data
     if ( skipxyz(j) ) then
       !write(*, *) 'Skipping zeroed mode shape component', j
@@ -725,8 +735,12 @@ program main
       write(*, *) 'interpolating component:', j
       f_prune(:) = fall_prune(j, :) 
       call system_clock(clock1, clock_rate)
+#ifdef BUILD_RBF_MATRIX
+      call solve_rbf_lu(n_prune, rbf_matrix, f_prune, weights)
+#else
       call get_rbf_weights ( dim_space, n_prune, x_prune, r0,                  &
                              f_prune, weights )
+#endif
       call system_clock(clock2, clock_rate)
       time = dble(clock2-clock1) / clock_rate
       write(*, *) 'get_rbf_weight: ', time, ' sec'
