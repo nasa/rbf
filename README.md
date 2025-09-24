@@ -5,35 +5,36 @@ See Examples/hirenasd for scripts showing all steps required to prepare FEM mode
 
 The following help is shown by typing ./rbf without any arguments.
 <pre>
-rbf Version: 2.3.0-2019.10.02
+rbf Version: 2.6.0-e53e090
 
  Purpose:  Interpolate mode shapes from FEM modes to CFD surface.
-   Usage:  ./rbf -s fem_mode_shape -d cfd_mesh -i cfd_mode_shape [options] 
- Options:  
+   Usage:  rbf -s fem_mode_shape -d cfd_mesh -i cfd_mode_shape [options]
+ Options:
            -s  source_fem_mode_shape_file
            -d  destination_mesh_file
            -i  interpolated_mode_shape_file
            -iz ignore points whose values are zero
            -nk number of source (fem) nodes to keep
            -pk percent of source (fem) nodes to keep
+           -lk keep source (fem) nodes based on length
            -wp write fem_source_points for debugging
            -p  primary_surface_file
            -b  radial_blend_distance_in_grid_units for use with -p
-           -x  xsym_blend_distance_in_grid_units
-           -y  ysym_blend_distance_in_grid_units
-           -z  zsym_blend_distance_in_grid_units
+           -x  symetry_plane_cordinate, use with -b
+           -y  symetry_plane_cordinate, use with -b
+           -z  symetry_plane_cordinate, use with -b
            -cs compute spring connectivity from rbf.nml
-Requires:  
-          1) ascci formatted fem mode shapes with 
+Requires:
+          1) ascci formatted fem mode shapes with
              variables x,y,z,f1,f2,f3,f4,f5,f6
-Examples:  
-           ./rbf -s fem/mode001.txt -d project_ddfdrive_body1.dat \
+Examples:
+           rbf -s fem/mode001.txt -d project_ddfdrive_body1.dat \
              -i project_body1_mode1.dat -nk 250 -y 4
-           ./rbf -s fem/mode001.txt -d ddfdrive_allsurf.dat \
+           rbf -s fem/mode001.txt -d ddfdrive_allsurf.dat \
              -i project_body1_mode1.dat -p ddfdrive_wing_tail.dat -b 3 -pk 25
-   Built:  Fri Oct  4 11:20:17 PDT 2019 on Linux 4.12.14-95.19.1.20190617-nasa
- Version:  2.3.0 (2019.10.02)
-   About:  Steven.J.Massey@nasa.gov 
+   Built:  Tue Aug 12 13:15:51 EDT 2025 on Darwin 24.5.0
+ Version:  2.6.0 (e53e090)
+   About:  Steven.J.Massey@nasa.gov
 </pre>
 Notices:
 Copyright 2019 United States Government as represented by the Administrator of the National Aeronautics and Space Administration. No copyright is claimed in the United States under Title 17, U.S. Code. All Other Rights Reserved.
