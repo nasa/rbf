@@ -37,9 +37,9 @@ contains
     write(*,'(t12,a,t16,a)') '-p', 'primary_surface_file' 
     write(*,'(t12,a,t16,a)') '-b', 'radial_blend_distance_in_grid_units '//    &
       'for use with -p' 
-    write(*,'(t12,a,t16,a)') '-x', 'xsym_blend_distance_in_grid_units' 
-    write(*,'(t12,a,t16,a)') '-y', 'ysym_blend_distance_in_grid_units' 
-    write(*,'(t12,a,t16,a)') '-z', 'zsym_blend_distance_in_grid_units' 
+    write(*,'(t12,a,t16,a)') '-x', 'symetry_plane_cordinate, use with -b' 
+    write(*,'(t12,a,t16,a)') '-y', 'symetry_plane_cordinate, use with -b' 
+    write(*,'(t12,a,t16,a)') '-z', 'symetry_plane_cordinate, use with -b' 
     write(*,'(t12,a,t16,a)') '-cs', 'compute spring connectivity from rbf.nml'
     write(*,'(a)') 'Requires:  '
     write(*,'(a)') '          1) ascci formatted fem mode shapes with '

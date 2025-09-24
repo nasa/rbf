@@ -159,7 +159,7 @@ program main
     type(kdtree2), pointer :: p 
   end type kdtree2_pointer
 
-  integer,   parameter, dimension(3) :: ver = [2, 5, 0]
+  integer,   parameter, dimension(3) :: ver = [2, 6, 0]
   integer,   parameter :: dim_space = 3
   integer,   parameter :: dim_data  = 3
   integer,   parameter :: dim_elem  = 4
@@ -201,6 +201,7 @@ program main
   real (dp) :: fmin(dim_space), fmax(dim_space), min_distance
   real (dp) :: l_keep_squared, dist_min, dist, pi
   real (dp) :: l_blend, l_blend_sq, bf, xi, xir, reduction_factor, length_keep
+  real (dp) :: sym_val 
   integer, parameter :: dim_alldata = 6
   real (dp) :: f(dim_alldata)
 
@@ -265,9 +266,10 @@ program main
 
   call parse_options(ver, filename_source, filename_dest, filename_interp,     &
                      filename_primary, filename_prune, length_keep,            &
-                     percent_keep, n_target, sym_flag, l_blend, ignore_zero,   &
-                     spring_connections)
+                     percent_keep, n_target, sym_flag, sym_val, l_blend,       &
+                     ignore_zero, spring_connections)
 ! optionally compute spring connections and stop
+  write(*,*) sym_val, l_blend
   if (spring_connections) then
     inquire(file='rbf.nml',exist=fexist)
     if (.not.fexist) then 
@@ -587,6 +589,7 @@ program main
     read(unit_dest, *) (elem_interp(i, j), i=1, dim_elem)
   end do
 
+
 ! prune data based on spacing threshold for points included from the fem
 ! starting from large spacing based on extents 
   call system_clock(clock1, clock_rate)
@@ -716,6 +719,14 @@ program main
     close(unit_prune)
   end if
 
+  write(*,*) 'sym_val = ',sym_val
+! temporarily translate mesh and fem to place symmetry plane at zero
+  if ( (sym_flag > 0) .and. (sym_flag < 4) .and. (abs(sym_val) > zero_tol_single) ) then
+    x_prune(sym_flag, :) = x_prune(sym_flag, :) - sym_val
+    x_interp(sym_flag, :) = x_interp(sym_flag, :) - sym_val
+  end if
+
+
 ! interpolate for each column of data
 #ifdef BUILD_RBF_MATRIX
   allocate (rbf_matrix(n_prune,n_prune))
@@ -798,12 +809,11 @@ program main
 
 ! smoothly zero out points on x, y or z symmetry plane  
 ! zeroes out only out of plane values
-! (assumes plane is at origin)
-! not used with -p or -b options
+! not used with -p option
   if ( (sym_flag > 0) .and. (sym_flag < 4) ) then
     do i = 1, n_interp
       if (abs(x_interp(sym_flag, i)) < l_blend ) then 
-! assumes symmetry plane is at origin
+! assumes symmetry plane is at origin (which is enforced with sym_val)
         xi = abs(x_interp(sym_flag, i))/l_blend
         xir = 1.d0-xi
         bf = (1.d0-xir)**4*(4.d0*xir+1.d0) !c2
@@ -812,6 +822,10 @@ program main
     end do
   end if
 
+! transform interpolated values back for writing
+  if ( (sym_flag > 0) .and. (sym_flag < 4) .and. (abs(sym_val) > zero_tol_single) ) then
+    x_interp(sym_flag, :) = x_interp(sym_flag, :) + sym_val
+  end if
 
 ! write interpolated result
   format0 = "('zone t=', a, ', i=', i0, ', j=', i0, ', f=fepoint')"

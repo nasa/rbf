@@ -16,7 +16,8 @@ contains
                           filename_interp, filename_primary,    &
                           filename_prune, length_keep,          &
                           percent_keep, n_target, sym_flag,     &
-                          l_blend, ignore_zero, spring_connections)
+                          sym_val, l_blend, ignore_zero,        &
+                          spring_connections)
     use kinddefs, only : dp
     use usage,    only : help
 
@@ -28,7 +29,7 @@ contains
     character(*)              :: filename_primary
     character(*)              :: filename_prune
     character(len=2048)       :: word, wordtmp
-    real(dp)                  :: l_blend, length_keep
+    real(dp)                  :: l_blend, length_keep, sym_val
     logical                   :: ignore_zero, spring_connections
   
   continue 
@@ -43,6 +44,7 @@ contains
     percent_keep = 0
     l_blend = 0.d0
     sym_flag = 0
+    sym_val = 0.d0
     ignore_zero = .false.
     spring_connections = .false. 
     ii = 1
@@ -83,24 +85,25 @@ contains
         ii = ii + 1
         call get_command_argument(ii, wordtmp)
         read(wordtmp,*) l_blend
-! x symmetry bc with l_blend transition region
+! x symmetry bc with sym_val (location of plane)
+! l_blend (transition region) now specified separately with -b
       else if (word(:2).eq.'-x') then 
         ii = ii + 1
         sym_flag=1
         call get_command_argument(ii, wordtmp)
-        read(wordtmp,*) l_blend
-! y symmetry bc with l_blend transition region
+        read(wordtmp,*) sym_val
+! y symmetry bc 
       else if (word(:2).eq.'-y') then 
         ii = ii + 1
         sym_flag=2
         call get_command_argument(ii, wordtmp)
-        read(wordtmp,*) l_blend
-! z symmetry bc with l_blend transition region
+        read(wordtmp,*) sym_val
+! z symmetry bc
       else if (word(:2).eq.'-z') then 
         ii = ii + 1
         sym_flag=3
         call get_command_argument(ii, wordtmp)
-        read(wordtmp,*) l_blend
+        read(wordtmp,*) sym_val
       end if
       ii = ii + 1
     end do
@@ -118,6 +121,12 @@ contains
     if ( (.not.(filename_primary=='')) .and. (sym_flag /= 0) ) then
       write(*,*) 'ERROR: -p and -x or -y or -z are mutually exclusive. '//   &
         'Use -b with -p.' 
+      call help(ver)
+    end if
+
+    if (  (l_blend == 0.d0) .and. (sym_flag /= 0) ) then
+      write(*,*) 'ERROR: -x or -y or -z requires setting blend '//           &
+                 'distance with -b.'
       call help(ver)
     end if
     
