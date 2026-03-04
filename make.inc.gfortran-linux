@@ -1,0 +1,5 @@
+FC = gfortran
+LD = gfortran
+CPPFLAGS =
+FFLAGS = -O2 -Wall -finit-real=nan -g
+LDFLAGS = /nobackupp17/sjmassey/local/lapack-3.12.1/liblapack.a /nobackupp17/sjmassey/local/lapack-3.12.1/librefblas.a

@@ -1,13 +1,16 @@
-# Makefile created by mkmf $Id: mkmf,v 18.0 2010/03/02 23:26:08 fms Exp $ 
-
-
 
 include make.inc
-
 
 .DEFAULT:
 	-echo $@ does not exist.
 all: rbf
+GIT_REV := $(shell git rev-parse --short HEAD 2>/dev/null || echo "0")
+buildinfo.f90:
+	echo "module buildinfo"                               > buildinfo.f90
+	date | sed 's/^/  character(len=80), parameter :: build_time = \"/; s/$$/\"/'     >> buildinfo.f90
+	uname -sr | sed 's/^/  character(len=80), parameter :: build_os   = \"/; s/$$/\"/' >> buildinfo.f90
+	echo '  character(len=80), parameter :: build_dir  = "$(GIT_REV)"' >> buildinfo.f90
+	echo "end module buildinfo"                           >> buildinfo.f90
 buildinfo.o: ./buildinfo.f90
 	$(FC) $(FFLAGS) $(OTHERFLAGS) -c	./buildinfo.f90
 get_dims.o: ./get_dims.f90 utils.o string_utils.o

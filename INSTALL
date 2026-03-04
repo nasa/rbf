@@ -2,3 +2,13 @@ To compile link make.inc to the appropriate file for your compiler.
 Be sure correct modules are loaded. Example helper scripts 
 (make_k.sh make_pfe.sh) do this for the k and pleiades clusters.
 
+Recommend using Intel MKL libraries, but can also download and compile lapack as follows:
+wget https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz
+tar -xvf v3.12.1.tar.gz
+cd lapack-3.12.1
+cp make.inc.example make.inc
+make
+
+Then add 
+LDFLAGS = /your/path/here/liblapack.a /your/path/here/librefblas.a
+to your make.inc
