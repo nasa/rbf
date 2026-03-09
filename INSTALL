@@ -12,3 +12,48 @@ make
 Then add 
 LDFLAGS = /your/path/here/liblapack.a /your/path/here/librefblas.a
 to your make.inc
+
+
+For the modeshape NASTRAN conversion helpers opt_to_txt.py and plot_modes.py:
+Requirements
+------------
+  - Python 3.9 or later (tested with 3.13 on mac)
+
+1. Create a virtual environment (recommended)
+----------------------------------------------
+
+  macOS / Linux:
+    python3 -m venv venv
+    source venv/bin/activate
+
+  Windows:
+    python3 -m venv venv
+    venv\Scripts\activate
+
+
+2. Install dependencies
+-----------------------
+
+  Install everything at once:
+
+    pip install numpy pyNastran pyvista "imageio[ffmpeg]"
+
+  Or install individually:
+
+    pip install numpy              # Core (required for both scripts)
+    pip install pyNastran          # OP2 extraction (required for op2_to_txt.py)
+    pip install pyvista            # Visualization (required for plot_modes.py)
+    pip install "imageio[ffmpeg]"  # MP4 export (optional, for --save-anim)
+
+
+3. Make scripts executable (macOS / Linux)
+------------------------------------------
+
+    chmod +x op2_to_txt.py plot_modes.py
+
+
+4. Verify installation
+----------------------
+
+    op2_to_txt.py --help
+    plot_modes.py --help
