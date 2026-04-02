@@ -159,7 +159,7 @@ program main
     type(kdtree2), pointer :: p 
   end type kdtree2_pointer
 
-  integer,   parameter, dimension(3) :: ver = [2, 6, 0]
+  integer,   parameter, dimension(3) :: ver = [2, 6, 1]
   integer,   parameter :: dim_space = 3
   integer,   parameter :: dim_data  = 3
   integer,   parameter :: dim_elem  = 4
@@ -197,6 +197,7 @@ program main
 
   real (dp) :: zero_tol_double
   real (dp) :: zero_tol_single
+  real (dp), parameter  :: zero_tol_skip_interp = 1e-4
   real (dp) :: xmin(dim_space), xmax(dim_space), time, l_max
   real (dp) :: fmin(dim_space), fmax(dim_space), min_distance
   real (dp) :: l_keep_squared, dist_min, dist, pi
@@ -572,7 +573,8 @@ program main
   !end do
 
   !skipxyz(:) = (abs(fmax(:)-fmin(:)) <= zero_tol_double )
-  skipxyz(:) = (abs(fmax(:)-fmin(:)) <= zero_tol_single )
+  !skipxyz(:) = (abs(fmax(:)-fmin(:)) <= zero_tol_single )
+  skipxyz(:) = (abs(fmax(:)-fmin(:)) <= zero_tol_skip_interp)
   !write(*,*) 'skipxyz(:)=',skipxyz(:)
 
 !read destination

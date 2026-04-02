@@ -15,6 +15,7 @@ contains
     use phi,      only : phi_tps,  phi_imq
     use svd,      only : solve_svd
 
+    integer ::  info
     integer,  intent(in)  :: nspace
     integer,  intent(in)  :: ndata
     real(dp), intent(in)  :: xdata(nspace,ndata)
@@ -44,7 +45,11 @@ contains
 #ifdef USESVD
     call solve_svd(ndata, ndata, a, fdata, w) ! more robust, but much slower
 #else
-    call solve_rbf_lu(ndata, a, fdata, w)
+    call solve_rbf_lu(ndata, a, fdata, w, info)
+    if (info /= 0) then
+        print *, 'ERROR: dgesv failed, info =', info, 'calling svd now'
+        call solve_svd(ndata, ndata, a, fdata, w) ! more robust, but much slower
+    end if
 #endif
 
   end subroutine get_rbf_weights
@@ -97,7 +102,7 @@ contains
     end do
   end subroutine build_rbf_matrix
 
-  subroutine solve_rbf_lu(ndata, a, b, x)
+  subroutine solve_rbf_lu(ndata, a, b, x, info)
     use kinddefs, only: dp, i4
     implicit none
     integer, intent(in) :: ndata
@@ -112,9 +117,9 @@ contains
     bb = b
     call dgesv(ndata, 1, aa, ndata, ipiv, bb, ndata, info)
     x = bb
-    if (info /= 0) then
-        print *, 'ERROR: dgesv failed, info =', info
-    end if
+    !if (info /= 0) then
+    !    print *, 'ERROR: dgesv failed, info =', info
+    !end if
   end subroutine solve_rbf_lu
 
 
