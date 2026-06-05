@@ -3,5 +3,5 @@ LD = ifort
 CPPFLAGS = 
 MKLPATH=$(MKLROOT)/lib/intel64
 MKLINCLUDE=$(MKLROOT)/include
-FFLAGS = -w -nbs -ftz -g -traceback -ipo -03 -align -march=core-avx2
+FFLAGS = -w -nbs -ftz -g -traceback -ipo -O3 -align -march=core-avx2
 LDFLAGS = -nbs -L$(MKLPATH) -I$(MKLINCLUDE) -mkl=sequential
